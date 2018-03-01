@@ -1,6 +1,7 @@
 package org.boudnik.framework;
 
 import org.apache.ignite.Ignition;
+import org.apache.ignite.configuration.IgniteConfiguration;
 
 /**
  * @author Alexandre_Boudnik
@@ -12,7 +13,7 @@ public class Store {
     private final Transaction transaction;
 
     private Store() {
-        transaction = new Transaction(Ignition.ignite());
+        transaction = new Transaction(Ignition.getOrStart(new IgniteConfiguration()));
     }
 
     public static Store instance() {
