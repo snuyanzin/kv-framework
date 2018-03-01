@@ -108,8 +108,9 @@ public class Transaction implements AutoCloseable {
                 return null;
             else {
                 BinaryObject binaryObject = cache(clazz).<K, BinaryObject>withKeepBinary().get(identity);
+                if (binaryObject == null)
+                    return null;
                 V v = binaryObject.deserialize();
-                assert v != null;
                 v.setKey(identity);
                 map.put(identity, v);
                 mementos.put(v, binaryObject);
@@ -120,7 +121,11 @@ public class Transaction implements AutoCloseable {
     }
 
     void save(OBJ obj) {
-        getMap(obj.getClass()).put(obj.getKey(), obj);
+        save(obj, obj.getKey());
+    }
+
+    void save(OBJ obj, Object key) {
+        getMap(obj.getClass()).put(key, obj);
     }
 
     void delete(OBJ obj) {

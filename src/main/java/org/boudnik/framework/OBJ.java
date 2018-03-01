@@ -19,10 +19,14 @@ public interface OBJ<K> extends Serializable {
     }
 
     default void setKey(@NotNull K key) {
-        throw new NoSuchElementException("setKey");
+//        throw new NoSuchElementException("setKey");
     }
 
     default void save() {
+        Store.instance().transaction().save(this);
+    }
+
+    default void save(K key) {
         Store.instance().transaction().save(this);
     }
 
