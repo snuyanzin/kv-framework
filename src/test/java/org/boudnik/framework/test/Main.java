@@ -2,12 +2,8 @@ package org.boudnik.framework.test;
 
 import org.boudnik.framework.Store;
 import org.boudnik.framework.Transaction;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import sun.plugin2.jvm.CircularByteBuffer;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
