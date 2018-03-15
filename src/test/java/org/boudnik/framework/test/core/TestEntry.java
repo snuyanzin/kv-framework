@@ -1,4 +1,4 @@
-package org.boudnik.framework.test;
+package org.boudnik.framework.test.core;
 
 import org.boudnik.framework.OBJ;
 
