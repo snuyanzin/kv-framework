@@ -21,6 +21,11 @@ public class Transaction implements AutoCloseable {
         this.ignite = ignite;
     }
 
+    public void commit(Transactionable transactionable) {
+        transactionable.commit();
+        commit();
+    }
+
     public void commit() {
         try {
             walk(this::doCommit);

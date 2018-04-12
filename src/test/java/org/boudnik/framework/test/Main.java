@@ -19,8 +19,7 @@ public class Main {
     public void main() {
         Store.instance().create(TestEntry.class);
         try (Transaction tx = Store.instance().begin()) {
-            new TestEntry("http://localhost/1").save("");
-            tx.commit();
+            tx.commit( () -> new TestEntry("http://localhost/1").save(""));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -38,18 +37,16 @@ public class Main {
         ExecutorService executor = Executors.newFixedThreadPool(2);
         executor.submit(() -> {
             try (Transaction tx = Store.instance().begin()) {
-                new TestEntry("http://localhost/1").save("");
                 System.out.println("tx = " + tx);
-                tx.commit();
+                tx.commit(() -> new TestEntry("http://localhost/1").save(""));
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
         executor.submit(() -> {
             try (Transaction tx = Store.instance().begin()) {
-                new TestEntry("http://localhost/1").save("");
                 System.out.println("tx = " + tx);
-                tx.commit();
+                tx.commit(() -> new TestEntry("http://localhost/1").save(""));
             } catch (Exception e) {
                 e.printStackTrace();
             }
