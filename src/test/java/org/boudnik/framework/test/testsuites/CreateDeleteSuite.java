@@ -12,7 +12,7 @@ public class CreateDeleteSuite extends GridCommonAbstractTest {
 
         Store.instance().create(TestEntry.class);
         try (Transaction tx = Store.instance().begin()) {
-            TestEntry te = new TestEntry("http://localhost/1");
+            TestEntry te = new TestEntry("testCreateDeleteCommit");
             te.save();
             te.delete();
             tx.commit();
@@ -20,7 +20,7 @@ public class CreateDeleteSuite extends GridCommonAbstractTest {
             e.printStackTrace();
         }
         try (Transaction tx = Store.instance().begin()) {
-            TestEntry entry = tx.get(TestEntry.class, "http://localhost/1");
+            TestEntry entry = tx.get(TestEntry.class, "testCreateDeleteCommit");
             Assert.assertNull(entry);
         } catch (Exception e) {
             e.printStackTrace();
@@ -31,7 +31,7 @@ public class CreateDeleteSuite extends GridCommonAbstractTest {
 
         Store.instance().create(TestEntry.class);
         try (Transaction tx = Store.instance().begin()) {
-            TestEntry te = new TestEntry("http://localhost/1");
+            TestEntry te = new TestEntry("testCreateDeleteRollback");
             te.save();
             te.delete();
             tx.rollback();
@@ -39,7 +39,7 @@ public class CreateDeleteSuite extends GridCommonAbstractTest {
             e.printStackTrace();
         }
         try (Transaction tx = Store.instance().begin()) {
-            TestEntry entry = tx.get(TestEntry.class, "http://localhost/1");
+            TestEntry entry = tx.get(TestEntry.class, "testCreateDeleteRollback");
             Assert.assertNull(entry);
         } catch (Exception e) {
             e.printStackTrace();

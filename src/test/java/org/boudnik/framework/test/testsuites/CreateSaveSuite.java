@@ -12,13 +12,13 @@ public class CreateSaveSuite extends GridCommonAbstractTest {
 
         Store.instance().create(TestEntry.class);
         try (Transaction tx = Store.instance().begin()) {
-            new TestEntry("http://localhost/1").save();
+            new TestEntry("testCreateSaveCommit").save();
             tx.commit();
         } catch (Exception e) {
             e.printStackTrace();
         }
         try (Transaction tx = Store.instance().begin()) {
-            TestEntry entry = tx.get(TestEntry.class, "http://localhost/1");
+            TestEntry entry = tx.get(TestEntry.class, "testCreateSaveCommit");
             Assert.assertNotNull(entry);
         } catch (Exception e) {
             e.printStackTrace();
@@ -29,13 +29,13 @@ public class CreateSaveSuite extends GridCommonAbstractTest {
 
         Store.instance().create(TestEntry.class);
         try (Transaction tx = Store.instance().begin()) {
-            new TestEntry("http://localhost/1").save();
+            new TestEntry("testCreateSaveRollback").save();
             tx.rollback();
         } catch (Exception e) {
             e.printStackTrace();
         }
         try (Transaction tx = Store.instance().begin()) {
-            TestEntry entry = tx.get(TestEntry.class, "http://localhost/1");
+            TestEntry entry = tx.get(TestEntry.class, "testCreateSaveRollback");
             Assert.assertNull(entry);
         } catch (Exception e) {
             e.printStackTrace();
