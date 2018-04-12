@@ -6,7 +6,9 @@ import org.apache.ignite.binary.BinaryObject;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Alexandre_Boudnik
@@ -50,23 +52,28 @@ public class Transaction implements AutoCloseable {
         mementos.clear();
     }
 
-    private void doCommit(Class<? extends OBJ> clazz, Map.Entry<Object, OBJ> entry) {
+    private void doCommit(Class<? extends OBJ> clazz, Map<Object, OBJ> map, boolean isTombstone) {
         IgniteCache<Object, BinaryObject> cache = cache(clazz);
-        Object key = entry.getKey();
-        OBJ obj = entry.getValue();
-        if (OBJ.TOMBSTONE == obj)
-            cache.remove(key);
+        if (isTombstone) {
+            cache.removeAll(map.keySet());
+        }
         else {
-            BinaryObject current = ignite.binary().toBinary(obj);
-            BinaryObject memento = mementos.get(obj);
-            if (memento != null && !current.equals(memento)) {
-                obj.onCommit(current, memento);
+            Map<Object, BinaryObject> map2Cache = new HashMap<>();
+            for(Map.Entry<Object, OBJ> entry: map.entrySet()) {
+                OBJ obj = entry.getValue();
+                BinaryObject current = ignite.binary().toBinary(obj);
+
+                BinaryObject memento = mementos.get(obj);
+                if (memento != null && !current.equals(memento)) {
+                    obj.onCommit(current, memento);
+                }
+                map2Cache.put(entry.getKey(), current);
             }
-            cache.put(key, current);
+            cache.putAll(map2Cache);
         }
     }
 
-    private void doRollback(@SuppressWarnings("unused") Class<? extends OBJ> clazz, @SuppressWarnings("unused") Map.Entry<Object, OBJ> entry) {
+    private void doRollback(@SuppressWarnings("unused") Class<? extends OBJ> clazz, @SuppressWarnings("unused") Map<Object, OBJ> map, @SuppressWarnings("unused") boolean isTombstone) {
 /*
         for (@SuppressWarnings("unused") Map.Entry<OBJ, BinaryObject> memento : mementos.entrySet()) {
             BinaryObject binary = memento.getValue();
@@ -88,8 +95,13 @@ public class Transaction implements AutoCloseable {
 
     private void walk(Worker worker) {
         for (Map.Entry<Class<? extends OBJ>, Map<Object, OBJ>> byClass : scope.entrySet()) {
-            for (Map.Entry<Object, OBJ> entry : byClass.getValue().entrySet()) {
-                worker.accept(byClass.getKey(), entry);
+
+            Map<Boolean, List<Map.Entry<Object, OBJ>>> groups = byClass.getValue().entrySet()
+                    .stream().collect(Collectors.partitioningBy(o -> o.getValue() == OBJ.TOMBSTONE));
+
+            for (Map.Entry<Boolean, List<Map.Entry<Object, OBJ>>> entry : groups.entrySet()) {
+                worker.accept(byClass.getKey(), entry.getValue().stream().collect(
+                        Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a,b) -> b)), entry.getKey());
             }
         }
     }
@@ -143,7 +155,7 @@ public class Transaction implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         if (ignite.transactions().tx() != null)
             rollback();
     }
@@ -169,10 +181,11 @@ public class Transaction implements AutoCloseable {
          * Performs this operation on the given arguments.
          *
          * @param c     class
-         * @param entry (key -> value)
+         * @param map (key -> value)
+         * @param isTombstone  == OBJ.TOMBSTONE or NOT
          */
 //        <K, V>
-        void accept(Class<? extends OBJ> c, Map.Entry<Object, OBJ> entry);
+        void accept(Class<? extends OBJ> c, Map<Object, OBJ> map, boolean isTombstone);
 
     }
 }
