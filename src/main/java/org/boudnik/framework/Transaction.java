@@ -162,6 +162,13 @@ public class Transaction implements AutoCloseable {
         return this;
     }
 
+    Transaction tx(Transactionable transactionable) {
+        ignite.transactions().txStart();
+        transactionable.commit();
+        commit();
+        return this;
+    }
+
     Transaction tx() {
         if (ignite.transactions().tx() == null)
             throw new NoTransactionException();

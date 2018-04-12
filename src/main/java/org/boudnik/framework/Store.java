@@ -24,8 +24,32 @@ public class Store {
         return transaction.begin();
     }
 
+    public Transaction begin(Transactionable transactionable) {
+        Transaction tx = transaction.begin();
+        transactionable.commit();
+        tx.commit();
+        return tx;
+    }
+
+    public Transaction tx(Transactionable transactionable) {
+        return transaction.tx(transactionable);
+    }
+
     public void create(Class clazz) {
         Ignition.ignite().getOrCreateCache(clazz.getName());
+    }
+
+    public Transaction tx(Transactionable transactionable, Class clazz, Class ... classes) {
+        Ignition.ignite().getOrCreateCache(clazz.getName());
+        for(Class cl: classes) {
+            Ignition.ignite().getOrCreateCache(cl.getName());
+        }
+        return tx(transactionable);
+    }
+
+    public Transaction tx(Transactionable transactionable, Class clazz) {
+        Ignition.ignite().getOrCreateCache(clazz.getName());
+        return tx(transactionable);
     }
 
     Transaction transaction() {
