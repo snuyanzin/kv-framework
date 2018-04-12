@@ -27,7 +27,7 @@ public interface OBJ<K> extends Serializable {
     }
 
     default void save(K key) {
-        Store.instance().transaction().save(this);
+        Store.instance().transaction().save(this, key);
     }
 
     default void delete() {
