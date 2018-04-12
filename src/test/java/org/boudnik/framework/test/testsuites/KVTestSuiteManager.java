@@ -7,7 +7,8 @@ public class KVTestSuiteManager extends TestSuite
     public static TestSuite suite() {
         TestSuite suite = new TestSuite("KV test suite");
         suite.addTestSuite(CreateSaveSuite.class);
-        suite.addTestSuite(DeleteSaveSuite.class);
+        suite.addTestSuite(CreateSaveDeleteSuite.class);
+        suite.addTestSuite(CreateDeleteSuite.class);
         return suite;
     }
 }

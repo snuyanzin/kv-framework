@@ -6,20 +6,15 @@ import org.boudnik.framework.Transaction;
 import org.boudnik.framework.test.core.TestEntry;
 import org.junit.Assert;
 
-public class DeleteSaveSuite extends GridCommonAbstractTest {
+public class CreateDeleteSuite extends GridCommonAbstractTest {
 
-    public void testCommitDelete() {
+    public void testCreateDeleteCommit() {
+
         Store.instance().create(TestEntry.class);
         try (Transaction tx = Store.instance().begin()) {
-            new TestEntry("http://localhost/1").save();
-            tx.commit();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try (Transaction tx = Store.instance().begin()) {
-            TestEntry entry = tx.get(TestEntry.class, "http://localhost/1");
-            Assert.assertNotNull(entry);
-            entry.delete();
+            TestEntry te = new TestEntry("http://localhost/1");
+            te.save();
+            te.delete();
             tx.commit();
         } catch (Exception e) {
             e.printStackTrace();
@@ -32,5 +27,22 @@ public class DeleteSaveSuite extends GridCommonAbstractTest {
         }
     }
 
+    public void testCreateDeleteRollback() {
 
+        Store.instance().create(TestEntry.class);
+        try (Transaction tx = Store.instance().begin()) {
+            TestEntry te = new TestEntry("http://localhost/1");
+            te.save();
+            te.delete();
+            tx.rollback();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try (Transaction tx = Store.instance().begin()) {
+            TestEntry entry = tx.get(TestEntry.class, "http://localhost/1");
+            Assert.assertNull(entry);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
