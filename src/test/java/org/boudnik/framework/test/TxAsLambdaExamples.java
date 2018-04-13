@@ -1,7 +1,6 @@
 package org.boudnik.framework.test;
 
 import org.apache.ignite.testframework.junits.common.GridCommonAbstractTest;
-import org.boudnik.framework.Store;
 import org.boudnik.framework.Transaction;
 import org.boudnik.framework.test.core.TestEntry;
 import org.junit.Assert;

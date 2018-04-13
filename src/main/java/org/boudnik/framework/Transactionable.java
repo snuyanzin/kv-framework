@@ -1,7 +1,6 @@
 package org.boudnik.framework;
 
 @FunctionalInterface
-public interface Transactionable
-{
+public interface Transactionable {
     void commit();
 }

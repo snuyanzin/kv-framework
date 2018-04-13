@@ -23,19 +23,19 @@ public interface OBJ<K> extends Serializable {
     }
 
     default void save() {
-        Store.instance().transaction().save(this);
+        Transaction.instance().save(this);
     }
 
     default void save(K key) {
-        Store.instance().transaction().save(this);
+        Transaction.instance().save(this, key);
     }
 
     default void delete() {
-        Store.instance().transaction().delete(this);
+        Transaction.instance().delete(this);
     }
 
     default void revert() {
-        Store.instance().transaction().revert(this);
+        Transaction.instance().revert(this);
     }
 
     default void onCommit(BinaryObject current, BinaryObject memento) {
@@ -81,8 +81,8 @@ public interface OBJ<K> extends Serializable {
 
             public V get() {
                 if (reference == null) {
-                    return this.reference = Store.instance().transaction().get(clazz, identity);
-                } else if (Store.instance().transaction().isDeleted(reference))
+                    return this.reference = Transaction.instance().get(clazz, identity);
+                } else if (Transaction.instance().isDeleted(reference))
                     return null;
                 else
                     return reference;
