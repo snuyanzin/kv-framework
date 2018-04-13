@@ -1,11 +1,10 @@
 package org.boudnik.framework.test.testsuites;
 
-import org.apache.ignite.testframework.junits.common.GridCommonAbstractTest;
 import org.boudnik.framework.Transaction;
 import org.boudnik.framework.test.core.TestEntry;
 import org.junit.Assert;
 
-public class CreateSaveDeleteSuite extends GridCommonAbstractTest {
+public class CreateSaveDeleteTest {
 
     public void testCommitDeleteCommit() {
         try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class).tx(() ->
