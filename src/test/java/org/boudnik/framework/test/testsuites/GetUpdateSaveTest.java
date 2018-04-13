@@ -1,14 +1,15 @@
 package org.boudnik.framework.test.testsuites;
 
-import org.apache.ignite.testframework.junits.common.GridCommonAbstractTest;
 import org.boudnik.framework.Transaction;
 import org.boudnik.framework.test.core.MutableTestEntry;
 import org.junit.Assert;
+import org.junit.Test;
 
-public class GetUpdateSaveSuite extends GridCommonAbstractTest {
+public class GetUpdateSaveTest {
 
     private static final String NEW_VALUE = "New Value";
 
+    @Test
     public void testGetUpdateSaveCommit() {
 
         try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class).tx(() ->
@@ -18,7 +19,7 @@ public class GetUpdateSaveSuite extends GridCommonAbstractTest {
             e.printStackTrace();
         }
 
-        try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class)) {
+        try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class).tx()) {
             MutableTestEntry entry = tx.get(MutableTestEntry.class, "testGetUpdateSaveCommit");
             Assert.assertNotNull(entry);
             Assert.assertNull(entry.getValue());
@@ -32,6 +33,7 @@ public class GetUpdateSaveSuite extends GridCommonAbstractTest {
         }
     }
 
+    @Test
     public void testGetUpdateSaveRollback() {
 
         try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class).tx(() ->
@@ -42,7 +44,7 @@ public class GetUpdateSaveSuite extends GridCommonAbstractTest {
             e.printStackTrace();
         }
 
-        try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class)) {
+        try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class).tx()) {
             MutableTestEntry entry = tx.get(MutableTestEntry.class, "testGetUpdateSaveRollback");
             Assert.assertNotNull(entry);
             Assert.assertNull(entry.getValue());

@@ -1,12 +1,13 @@
 package org.boudnik.framework.test.testsuites;
 
-import org.apache.ignite.testframework.junits.common.GridCommonAbstractTest;
 import org.boudnik.framework.Transaction;
 import org.boudnik.framework.test.core.TestEntry;
 import org.junit.Assert;
+import org.junit.Test;
 
-public class CreateDeleteSuite extends GridCommonAbstractTest {
+public class CreateDeleteTest {
 
+    @Test
     public void testCreateDeleteCommit() {
 
         try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class).tx(() -> {
@@ -18,7 +19,7 @@ public class CreateDeleteSuite extends GridCommonAbstractTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class)) {
+        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class).tx()) {
             TestEntry entry = tx.get(TestEntry.class, "testCreateDeleteCommit");
             Assert.assertNull(entry);
         } catch (Exception e) {
@@ -26,19 +27,20 @@ public class CreateDeleteSuite extends GridCommonAbstractTest {
         }
     }
 
+    @Test
     public void testCreateDeleteRollback() {
 
-        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class).tx(() -> {
+        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class).tx())
+        {
             TestEntry te = new TestEntry("testCreateDeleteRollback");
             te.save();
             te.delete();
-            throw new RuntimeException("RollbackException");
-        })) {
+            tx.rollback();
             System.out.println("tx = " + tx);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class)) {
+        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class).tx()) {
             TestEntry entry = tx.get(TestEntry.class, "testCreateDeleteRollback");
             Assert.assertNull(entry);
         } catch (Exception e) {

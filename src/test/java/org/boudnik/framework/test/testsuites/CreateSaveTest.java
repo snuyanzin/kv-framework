@@ -1,12 +1,13 @@
 package org.boudnik.framework.test.testsuites;
 
-import org.apache.ignite.testframework.junits.common.GridCommonAbstractTest;
 import org.boudnik.framework.Transaction;
 import org.boudnik.framework.test.core.TestEntry;
 import org.junit.Assert;
+import org.junit.Test;
 
-public class CreateSaveSuite extends GridCommonAbstractTest {
+public class CreateSaveTest {
 
+    @Test
     public void testCreateSaveCommit() {
 
         try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class).tx(() ->
@@ -16,7 +17,7 @@ public class CreateSaveSuite extends GridCommonAbstractTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class)) {
+        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class).tx()) {
             TestEntry entry = tx.get(TestEntry.class, "testCreateSaveCommit");
             Assert.assertNotNull(entry);
         } catch (Exception e) {
@@ -24,15 +25,16 @@ public class CreateSaveSuite extends GridCommonAbstractTest {
         }
     }
 
+    @Test
     public void testCreateSaveRollback() {
 
-        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class)) {
+        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class).tx()) {
             new TestEntry("testCreateSaveRollback").save();
             tx.rollback();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class)) {
+        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class).tx()) {
             TestEntry entry = tx.get(TestEntry.class, "testCreateSaveRollback");
             Assert.assertNull(entry);
         } catch (Exception e) {

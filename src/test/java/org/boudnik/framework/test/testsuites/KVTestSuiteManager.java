@@ -3,14 +3,14 @@ package org.boudnik.framework.test.testsuites;
 import junit.framework.TestSuite;
 
 public class KVTestSuiteManager extends TestSuite {
-    public static TestSuite suite() {
+  /*  public static TestSuite suite() {
         TestSuite suite = new TestSuite("KV test suite");
-        suite.addTestSuite(CreateSaveSuite.class);
-        suite.addTestSuite(CreateSaveDeleteSuite.class);
+        suite.addTest(CreateSaveTest.class);
+        suite.addTestSuite(CreateSaveDeleteTest.class);
         suite.addTestSuite(CreateDeleteSuite.class);
-        suite.addTestSuite(GetDeleteSuite.class);
-        suite.addTestSuite(GetUpdateSaveDeleteSuite.class);
-        suite.addTestSuite(GetUpdateSaveSuite.class);
+        suite.addTestSuite(GetDeleteTest.class);
+        suite.addTestSuite(GetUpdateSaveDeleteTest.class);
+        suite.addTestSuite(GetUpdateSaveTest.class);
         return suite;
-    }
+    }*/
 }

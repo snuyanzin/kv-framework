@@ -15,7 +15,8 @@ public class CreateSaveDeleteSuite extends GridCommonAbstractTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class)) {
+        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class).tx()) {
+
             TestEntry entry = tx.get(TestEntry.class, "testCommitDeleteCommit");
             Assert.assertNotNull(entry);
             entry.delete();
@@ -23,7 +24,7 @@ public class CreateSaveDeleteSuite extends GridCommonAbstractTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class)) {
+        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class).tx()) {
             TestEntry entry = tx.get(TestEntry.class, "testCommitDeleteCommit");
             Assert.assertNull(entry);
         } catch (Exception e) {
@@ -39,7 +40,7 @@ public class CreateSaveDeleteSuite extends GridCommonAbstractTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class)) {
+        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class).tx()) {
             TestEntry entry = tx.get(TestEntry.class, "testCommitDeleteRollback");
             Assert.assertNotNull(entry);
             entry.delete();
@@ -47,7 +48,7 @@ public class CreateSaveDeleteSuite extends GridCommonAbstractTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class)) {
+        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class).tx()) {
             TestEntry entry = tx.get(TestEntry.class, "testCommitDeleteRollback");
             Assert.assertNotNull(entry);
         } catch (Exception e) {

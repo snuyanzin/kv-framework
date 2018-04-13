@@ -184,7 +184,7 @@ public class Transaction implements AutoCloseable {
         return OBJ.TOMBSTONE == getMap(reference.getClass()).get(reference.getKey());
     }
 
-    Transaction begin() {
+    public Transaction tx() {
         ignite.transactions().txStart();
         return this;
     }
@@ -193,12 +193,6 @@ public class Transaction implements AutoCloseable {
         ignite.transactions().txStart();
         transactionable.commit();
         commit();
-        return this;
-    }
-
-    Transaction tx() {
-        if (ignite.transactions().tx() == null)
-            throw new NoTransactionException();
         return this;
     }
 

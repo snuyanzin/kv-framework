@@ -1,13 +1,13 @@
 package org.boudnik.framework.test.testsuites;
 
-import org.apache.ignite.testframework.junits.common.GridCommonAbstractTest;
 import org.boudnik.framework.Transaction;
 import org.boudnik.framework.test.core.MutableTestEntry;
-import org.boudnik.framework.test.core.TestEntry;
 import org.junit.Assert;
+import org.junit.Test;
 
-public class GetDeleteSuite extends GridCommonAbstractTest {
+public class GetDeleteTest {
 
+    @Test
     public void testGetDeleteCommit() {
         try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class).tx(() ->
                 new MutableTestEntry("testGetDeleteCommit").save()
@@ -17,7 +17,7 @@ public class GetDeleteSuite extends GridCommonAbstractTest {
             e.printStackTrace();
         }
 
-        try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class)) {
+        try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class).tx()) {
             MutableTestEntry entry = tx.get(MutableTestEntry.class, "testGetDeleteCommit");
             Assert.assertNotNull(entry);
             entry.delete();
@@ -29,17 +29,18 @@ public class GetDeleteSuite extends GridCommonAbstractTest {
         }
     }
 
+    @Test
     public void testGetDeleteRollback() {
 
         try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class).tx(() ->
-            new MutableTestEntry("testGetDeleteRollback").save()
+                new MutableTestEntry("testGetDeleteRollback").save()
         )) {
             System.out.println("tx = " + tx);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class)) {
+        try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class).tx()) {
             MutableTestEntry entry = tx.get(MutableTestEntry.class, "testGetDeleteRollback");
             Assert.assertNotNull(entry);
             entry.delete();

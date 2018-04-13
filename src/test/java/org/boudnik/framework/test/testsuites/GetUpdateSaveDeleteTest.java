@@ -1,14 +1,17 @@
 package org.boudnik.framework.test.testsuites;
 
-import org.apache.ignite.testframework.junits.common.GridCommonAbstractTest;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import org.boudnik.framework.Transaction;
 import org.boudnik.framework.test.core.MutableTestEntry;
 import org.junit.Assert;
+import org.junit.Test;
 
-public class GetUpdateSaveDeleteSuite extends GridCommonAbstractTest {
+public class GetUpdateSaveDeleteTest {
 
     private static final String NEW_VALUE = "New Value";
 
+    @Test
     public void testGetUpdateSaveDeleteCommit() {
         try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class).tx(() ->
                 new MutableTestEntry("testGetUpdateSaveDeleteCommit").save()
@@ -18,7 +21,7 @@ public class GetUpdateSaveDeleteSuite extends GridCommonAbstractTest {
             e.printStackTrace();
         }
 
-        try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class)) {
+        try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class).tx()) {
             MutableTestEntry entry = tx.get(MutableTestEntry.class, "testGetUpdateSaveDeleteCommit");
             Assert.assertNotNull(entry);
             Assert.assertNull(entry.getValue());
@@ -33,6 +36,7 @@ public class GetUpdateSaveDeleteSuite extends GridCommonAbstractTest {
         }
     }
 
+    @Test
     public void testGetUpdateSaveDeleteRollback() {
 
         try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class).tx(() ->
@@ -43,7 +47,7 @@ public class GetUpdateSaveDeleteSuite extends GridCommonAbstractTest {
             e.printStackTrace();
         }
 
-        try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class)) {
+        try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class).tx()) {
             MutableTestEntry entry = tx.get(MutableTestEntry.class, "testGetUpdateSaveDeleteRollback");
             Assert.assertNotNull(entry);
             Assert.assertNull(entry.getValue());
