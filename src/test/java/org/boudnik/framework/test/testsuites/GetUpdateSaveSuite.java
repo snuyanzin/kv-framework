@@ -1,7 +1,6 @@
 package org.boudnik.framework.test.testsuites;
 
 import org.apache.ignite.testframework.junits.common.GridCommonAbstractTest;
-import org.boudnik.framework.Store;
 import org.boudnik.framework.Transaction;
 import org.boudnik.framework.test.core.MutableTestEntry;
 import org.junit.Assert;
@@ -12,15 +11,14 @@ public class GetUpdateSaveSuite extends GridCommonAbstractTest {
 
     public void testGetUpdateSaveCommit() {
 
-        Store.instance().create(MutableTestEntry.class);
-        try (Transaction tx = Store.instance().begin()) {
-            new MutableTestEntry("testGetUpdateSaveCommit").save();
-            tx.commit();
+        try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class).tx(() ->
+                new MutableTestEntry("testGetUpdateSaveCommit").save())) {
+            System.out.println("tx = " + tx);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        try (Transaction tx = Store.instance().begin()) {
+        try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class)) {
             MutableTestEntry entry = tx.get(MutableTestEntry.class, "testGetUpdateSaveCommit");
             Assert.assertNotNull(entry);
             Assert.assertNull(entry.getValue());
@@ -36,15 +34,15 @@ public class GetUpdateSaveSuite extends GridCommonAbstractTest {
 
     public void testGetUpdateSaveRollback() {
 
-        Store.instance().create(MutableTestEntry.class);
-        try (Transaction tx = Store.instance().begin()) {
-            new MutableTestEntry("testGetUpdateSaveRollback").save();
-            tx.commit();
+        try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class).tx(() ->
+                new MutableTestEntry("testGetUpdateSaveRollback").save()
+        )) {
+            System.out.println("tx = " + tx);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        try (Transaction tx = Store.instance().begin()) {
+        try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class)) {
             MutableTestEntry entry = tx.get(MutableTestEntry.class, "testGetUpdateSaveRollback");
             Assert.assertNotNull(entry);
             Assert.assertNull(entry.getValue());

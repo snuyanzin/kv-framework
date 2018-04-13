@@ -1,6 +1,5 @@
 package org.boudnik.framework.test;
 
-import org.boudnik.framework.Store;
 import org.boudnik.framework.Transaction;
 import org.boudnik.framework.test.core.TestEntry;
 import org.junit.Test;
@@ -17,14 +16,14 @@ public class Main {
 
     @Test
     public void main() {
-        Store.instance().create(TestEntry.class);
-        try (Transaction tx = Store.instance().begin()) {
-            new TestEntry("http://localhost/1").save("");
-            tx.commit();
+        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class).tx(() ->
+                new TestEntry("http://localhost/1").save("")
+        )) {
+            System.out.println("tx = " + tx);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        try (Transaction tx = Store.instance().begin()) {
+        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class)) {
             TestEntry entry = tx.get(TestEntry.class, "http://localhost/1");
             System.out.println("entry = " + entry);
         } catch (Exception e) {
@@ -34,22 +33,20 @@ public class Main {
 
     @Test
     public void mt() {
-        Store.instance().create(TestEntry.class);
         ExecutorService executor = Executors.newFixedThreadPool(2);
         executor.submit(() -> {
-            try (Transaction tx = Store.instance().begin()) {
-                new TestEntry("http://localhost/1").save("");
+            try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class).tx(() ->
+                    new TestEntry("http://localhost/1").save("")
+            )) {
                 System.out.println("tx = " + tx);
-                tx.commit();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
         executor.submit(() -> {
-            try (Transaction tx = Store.instance().begin()) {
-                new TestEntry("http://localhost/1").save("");
+            try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class).tx(() ->
+                    new TestEntry("http://localhost/1").save(""))) {
                 System.out.println("tx = " + tx);
-                tx.commit();
             } catch (Exception e) {
                 e.printStackTrace();
             }

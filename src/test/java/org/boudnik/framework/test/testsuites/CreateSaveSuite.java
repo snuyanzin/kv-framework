@@ -1,7 +1,6 @@
 package org.boudnik.framework.test.testsuites;
 
 import org.apache.ignite.testframework.junits.common.GridCommonAbstractTest;
-import org.boudnik.framework.Store;
 import org.boudnik.framework.Transaction;
 import org.boudnik.framework.test.core.TestEntry;
 import org.junit.Assert;
@@ -10,14 +9,14 @@ public class CreateSaveSuite extends GridCommonAbstractTest {
 
     public void testCreateSaveCommit() {
 
-        Store.instance().create(TestEntry.class);
-        try (Transaction tx = Store.instance().begin()) {
-            new TestEntry("testCreateSaveCommit").save();
-            tx.commit();
+        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class).tx(() ->
+                new TestEntry("testCreateSaveCommit").save()
+        )) {
+            System.out.println("tx = " + tx);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        try (Transaction tx = Store.instance().begin()) {
+        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class)) {
             TestEntry entry = tx.get(TestEntry.class, "testCreateSaveCommit");
             Assert.assertNotNull(entry);
         } catch (Exception e) {
@@ -27,14 +26,13 @@ public class CreateSaveSuite extends GridCommonAbstractTest {
 
     public void testCreateSaveRollback() {
 
-        Store.instance().create(TestEntry.class);
-        try (Transaction tx = Store.instance().begin()) {
+        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class)) {
             new TestEntry("testCreateSaveRollback").save();
             tx.rollback();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        try (Transaction tx = Store.instance().begin()) {
+        try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class)) {
             TestEntry entry = tx.get(TestEntry.class, "testCreateSaveRollback");
             Assert.assertNull(entry);
         } catch (Exception e) {

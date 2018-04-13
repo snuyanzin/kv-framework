@@ -1,23 +1,23 @@
 package org.boudnik.framework.test.testsuites;
 
 import org.apache.ignite.testframework.junits.common.GridCommonAbstractTest;
-import org.boudnik.framework.Store;
 import org.boudnik.framework.Transaction;
 import org.boudnik.framework.test.core.MutableTestEntry;
+import org.boudnik.framework.test.core.TestEntry;
 import org.junit.Assert;
 
 public class GetDeleteSuite extends GridCommonAbstractTest {
 
     public void testGetDeleteCommit() {
-        Store.instance().create(MutableTestEntry.class);
-        try (Transaction tx = Store.instance().begin()) {
-            new MutableTestEntry("testGetDeleteCommit").save();
-            tx.commit();
+        try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class).tx(() ->
+                new MutableTestEntry("testGetDeleteCommit").save()
+        )) {
+            System.out.println("tx = " + tx);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        try (Transaction tx = Store.instance().begin()) {
+        try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class)) {
             MutableTestEntry entry = tx.get(MutableTestEntry.class, "testGetDeleteCommit");
             Assert.assertNotNull(entry);
             entry.delete();
@@ -31,15 +31,15 @@ public class GetDeleteSuite extends GridCommonAbstractTest {
 
     public void testGetDeleteRollback() {
 
-        Store.instance().create(MutableTestEntry.class);
-        try (Transaction tx = Store.instance().begin()) {
-            new MutableTestEntry("testGetDeleteRollback").save();
-            tx.commit();
+        try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class).tx(() ->
+            new MutableTestEntry("testGetDeleteRollback").save()
+        )) {
+            System.out.println("tx = " + tx);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        try (Transaction tx = Store.instance().begin()) {
+        try (Transaction tx = Transaction.instance().withCacheName(MutableTestEntry.class)) {
             MutableTestEntry entry = tx.get(MutableTestEntry.class, "testGetDeleteRollback");
             Assert.assertNotNull(entry);
             entry.delete();

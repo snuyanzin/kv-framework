@@ -2,7 +2,9 @@ package org.boudnik.framework;
 
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
+import org.apache.ignite.Ignition;
 import org.apache.ignite.binary.BinaryObject;
+import org.apache.ignite.configuration.IgniteConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -15,6 +17,9 @@ import java.util.stream.Collectors;
  * @since 11/15/2017
  */
 public class Transaction implements AutoCloseable {
+    private static final ThreadLocal<Transaction> TRANSACTION_THREAD_LOCAL =
+            ThreadLocal.withInitial(() -> new Transaction(Ignition.getOrStart(new IgniteConfiguration())));
+
     private final Map<Class<? extends OBJ>, Map<Object, OBJ>> scope = new HashMap<>();
     private final Map<OBJ, BinaryObject> mementos = new HashMap<>();
     private final Ignite ignite;
@@ -32,6 +37,22 @@ public class Transaction implements AutoCloseable {
         } finally {
             clear();
         }
+    }
+
+    public static Transaction instance() {
+        return TRANSACTION_THREAD_LOCAL.get();
+    }
+
+    public Transaction withCacheName(Class clazz) {
+        Ignition.ignite().getOrCreateCache(clazz.getName());
+        return this;
+    }
+
+    public Transaction withCacheNames(Class... classes) {
+        for (Class clazz : classes) {
+            Ignition.ignite().getOrCreateCache(clazz.getName());
+        }
+        return this;
     }
 
     public void rollback() {
@@ -56,10 +77,9 @@ public class Transaction implements AutoCloseable {
         IgniteCache<Object, BinaryObject> cache = cache(clazz);
         if (isTombstone) {
             cache.removeAll(map.keySet());
-        }
-        else {
+        } else {
             Map<Object, BinaryObject> map2Cache = new HashMap<>();
-            for(Map.Entry<Object, OBJ> entry: map.entrySet()) {
+            for (Map.Entry<Object, OBJ> entry : map.entrySet()) {
                 OBJ obj = entry.getValue();
                 BinaryObject current = ignite.binary().toBinary(obj);
 
@@ -101,7 +121,7 @@ public class Transaction implements AutoCloseable {
 
             for (Map.Entry<Boolean, List<Map.Entry<Object, OBJ>>> entry : groups.entrySet()) {
                 worker.accept(byClass.getKey(), entry.getValue().stream().collect(
-                        Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a,b) -> b)), entry.getKey());
+                        Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> b)), entry.getKey());
             }
         }
     }
@@ -169,6 +189,13 @@ public class Transaction implements AutoCloseable {
         return this;
     }
 
+    public Transaction tx(Transactionable transactionable) {
+        ignite.transactions().txStart();
+        transactionable.commit();
+        commit();
+        return this;
+    }
+
     Transaction tx() {
         if (ignite.transactions().tx() == null)
             throw new NoTransactionException();
@@ -180,9 +207,9 @@ public class Transaction implements AutoCloseable {
         /**
          * Performs this operation on the given arguments.
          *
-         * @param c     class
-         * @param map (key -> value)
-         * @param isTombstone  == OBJ.TOMBSTONE or NOT
+         * @param c           class
+         * @param map         (key -> value)
+         * @param isTombstone == OBJ.TOMBSTONE or NOT
          */
 //        <K, V>
         void accept(Class<? extends OBJ> c, Map<Object, OBJ> map, boolean isTombstone);
