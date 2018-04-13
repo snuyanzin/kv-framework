@@ -3,9 +3,11 @@ package org.boudnik.framework.test.testsuites;
 import org.boudnik.framework.Transaction;
 import org.boudnik.framework.test.core.TestEntry;
 import org.junit.Assert;
+import org.junit.Test;
 
 public class CreateSaveDeleteTest {
 
+    @Test
     public void testCommitDeleteCommit() {
         try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class).tx(() ->
                 new TestEntry("testCommitDeleteCommit").save()
@@ -31,6 +33,7 @@ public class CreateSaveDeleteTest {
         }
     }
 
+    @Test
     public void testCommitDeleteRollback() {
         try (Transaction tx = Transaction.instance().withCacheName(TestEntry.class).tx(() ->
                 new TestEntry("testCommitDeleteRollback").save()
